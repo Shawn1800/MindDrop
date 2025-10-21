@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         setContentView(binding.getRoot());
 
 
-         setupRecyclerView();
+        setupRecyclerView();
         // Get an instance of the DAO
         MindDropDao dao = AppDatabase.getDatabase(getApplicationContext()).mindDropDao();
 

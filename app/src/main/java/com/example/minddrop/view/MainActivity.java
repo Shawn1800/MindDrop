@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.minddrop.R;
 import com.example.minddrop.model.MindDropItem;
+import com.example.minddrop.model.databse.AppDatabase;
+import com.example.minddrop.model.databse.MindDropDao;
 import com.example.minddrop.presenter.MainContract;
 import com.example.minddrop.databinding.ActivityMainBinding;
 import com.example.minddrop.presenter.MainContract;
@@ -35,9 +37,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
 
          setupRecyclerView();
+        // Get an instance of the DAO
+        MindDropDao dao = AppDatabase.getDatabase(getApplicationContext()).mindDropDao();
 
         // Initialize the presenter
-        presenter = new MainPresenter(this);//create a new presenter instance
+        presenter = new MainPresenter(this,dao);//create a new presenter instance
         presenter.onViewCreated(); // notifies presenter that the view is ready
 
         binding.fab.setOnClickListener(v -> presenter.onFabClicked());  // when the button is clicked from the view in main presenter public void onFabClicked()

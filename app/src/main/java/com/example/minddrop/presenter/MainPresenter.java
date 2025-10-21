@@ -1,51 +1,73 @@
 package com.example.minddrop.presenter;
 
+import android.os.Looper;
+import android.os.Handler;
+
 import com.example.minddrop.model.MindDropItem;
+import com.example.minddrop.model.databse.MindDropDao;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+
 
 public class MainPresenter  implements MainContract.Presenter {
 
     // A reference to the View, nullable to avoid memory leaks.
     private MainContract.View view; //this is a blueprint for the view package (mainactivity) ,rules are written here and the logic is written in the view package
-    // This will hold our data. Later, it will come from a database.
-    private List<MindDropItem> items = new ArrayList<>();
-    public MainPresenter(MainContract.View view) {
+
+
+    private final MindDropDao mindDropDao;
+
+    // Executor for background tasks
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    // Handler to post results back to the main thread
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    public MainPresenter (MainContract.View view, MindDropDao mindDropDao) {
         this.view = view;
+        this.mindDropDao = mindDropDao;
     }
 
     @Override
     public void  onViewCreated() { //this creates view
-        // Load initial data (dummy data for now)
+
         loadItems();
     }
-    public void loadItems(){  // this data will be stored in the view
+    private void loadItems() {
         if (view == null) return;
 
-        // Create some dummy data
-        if (items.isEmpty()) {
-            items.add(new MindDropItem("My first brilliant idea!", new Date()));
-            items.add(new MindDropItem("A screenshot of a recipe I want to try.", new Date(System.currentTimeMillis() - 86400000))); // Yesterday
-        }
+        executor.execute(() -> {
+            // Background thread
+            List<MindDropItem> items = mindDropDao.getAllItems();
 
-        if (items.isEmpty()) {
-            view.showEmptyView();
-        } else {
-            view.showItems(items);
-        }
-
+            handler.post(() -> {
+                // Main thread
+                if (view != null) {
+                    if (items.isEmpty()) {
+                        view.showEmptyView();
+                    } else {
+                        view.showItems(items);
+                    }
+                }
+            });
+        });
     }
     @Override
-    public void onFabClicked() { // this is the floating actionbutton i added
-        if (view != null) {
-            // In the future, this will open a capture screen.
-            // For now, just show a message.
-            view.showMessage("Capture Action Triggered!");
-        }
+    public void onFabClicked() {
+        if (view == null) return;
 
+        executor.execute(() -> {
+            // Background thread
+            String content = " New item added at " + new Date().toString();
+            mindDropDao.insert(new MindDropItem(content, new Date()));
 
+            // Reload items and update the UI
+            loadItems();
+        });
+        view.showMessage("New Item Added!");
     }
 
     @Override

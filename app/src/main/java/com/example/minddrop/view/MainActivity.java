@@ -1,10 +1,15 @@
 package com.example.minddrop.view;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -21,6 +26,7 @@ import com.example.minddrop.presenter.MainContract;
 import com.example.minddrop.presenter.MainPresenter;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.IOException;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainContract.View {
@@ -28,6 +34,12 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private ActivityMainBinding binding;
     private MainContract.Presenter presenter;
     private MindDropAdapter adapter;
+
+    // ActivityResultLauncher for picking an image
+    private final ActivityResultLauncher<String> mGetContent = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            this::onImageSelected
+    );
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,8 +58,20 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
         binding.fab.setOnClickListener(v -> presenter.onFabClicked());  // when the button is clicked from the view in main presenter public void onFabClicked()
         //fab is the id from activitymai.xml
+        binding.processImageButton.setOnClickListener(v->mGetContent.launch("image/*"));
     }
 
+    private void onImageSelected(Uri imageUri) {
+        if (imageUri != null) {
+            try {
+                // Convert Uri to Bitmap
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                presenter.onProcessImageClicked(bitmap);// this is the method from the presenter to
+            } catch (IOException e) {
+                showMessage("Failed to load image.");
+            }
+        }
+    }
     private void setupRecyclerView() {
         adapter = new MindDropAdapter();
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));

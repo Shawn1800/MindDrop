@@ -13,6 +13,8 @@
         android:clipToPadding="false"
         android:paddingTop="4dp"
         android:paddingBottom="80dp"
+        app:layout_anchor="@+id/emptyView"
+        app:layout_anchorGravity="top|center"
         tools:listitem="@layout/item_mind_drop" />
 
     <TextView
@@ -26,6 +28,17 @@
         android:layout_gravity="center"
         tools:visibility="visible"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/processImageButton"
+        style="@style/Widget.MaterialComponents.Button.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Process Image"
+        app:icon="@android:drawable/ic_menu_gallery"
+        app:layout_anchor="@id/fab"
+        app:layout_anchorGravity="top|start"
+        android:translationY="-30dp"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -33,7 +46,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:layout_marginBottom="20dp"
         android:contentDescription="Capture new item"
         app:srcCompat="@android:drawable/ic_input_add" />
+
+
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -41,7 +41,7 @@ android {
 
 dependencies {
     val room_version = "2.8.2"
-
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
 
